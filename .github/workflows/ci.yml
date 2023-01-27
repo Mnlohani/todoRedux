@@ -1,0 +1,56 @@
+name: CI
+on:
+  # Merge
+  push:
+    branches: [develop, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Cache
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Create pull request -> develop
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '18.x'
+      - run: npm ci
+      - run: npm run format:check
+        #- run: npm test -- --coverage
+        env:
+          CI: true
+
+      # Confirm pull request
+      - name: Build
+        if: github.event_name == 'push'
+        run: npm run build
+
+      # Upload dist folder
+      - name: Upload Dist Folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+      # Zip assets for release
+      - name: ZIP Assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: zip -r dist.zip ./dist
+
+      # Create a release for main
+      - name: Create a Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
