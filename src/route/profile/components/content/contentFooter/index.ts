@@ -1,0 +1,1 @@
+import { ContentFooter } from './ContentFooter'
