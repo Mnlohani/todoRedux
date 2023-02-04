@@ -1,16 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Profile } from './route/profile/page/Profile'
-import { Layout } from './route/shared/components/layout'
+import { Home } from './route/page/home'
 
-const App = () => {
+const App = (): JSX.Element => {
   return (
-    <Layout>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Profile />}></Route>
-        </Routes>
-      </BrowserRouter>
-    </Layout>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
